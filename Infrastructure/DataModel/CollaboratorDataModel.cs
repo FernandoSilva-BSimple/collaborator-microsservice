@@ -6,6 +6,7 @@ using Domain.Interfaces;
 using Domain.Models;
 using Domain.Visitor;
 namespace Infrastructure.DataModel;
+
 public class CollaboratorDataModel : ICollaboratorVisitor
 {
     public Guid Id { get; set; }

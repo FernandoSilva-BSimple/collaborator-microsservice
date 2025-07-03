@@ -15,6 +15,9 @@ public class DataModelMappingProfile : Profile
             .ConvertUsing<CollaboratorDataModelConverter>();
         CreateMap<UserDataModel, User>()
             .ConvertUsing<UserDataModelConverter>();
+        CreateMap<CollaboratorTemp, CollaboratorTempDataModel>();
+        CreateMap<CollaboratorTempDataModel, CollaboratorTemp>()
+            .ConvertUsing<CollaboratorTempDataModelConverter>();
     }
 
 }

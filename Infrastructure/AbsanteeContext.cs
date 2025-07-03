@@ -7,6 +7,7 @@ namespace Infrastructure
     {
         public virtual DbSet<CollaboratorDataModel> Collaborators { get; set; }
         public DbSet<UserDataModel> ValidUserIds { get; set; }
+        public virtual DbSet<CollaboratorTempDataModel> CollaboratorsTemp { get; set; }
 
         public AbsanteeContext(DbContextOptions<AbsanteeContext> options) : base(options)
         {
@@ -16,6 +17,8 @@ namespace Infrastructure
         {
             modelBuilder.Entity<CollaboratorDataModel>()
                 .OwnsOne(a => a.PeriodDateTime);
+
+            modelBuilder.Entity<CollaboratorTempDataModel>().OwnsOne(a => a.PeriodDateTime);
 
             modelBuilder.Entity<UserDataModel>().HasKey(v => v.Id);
 

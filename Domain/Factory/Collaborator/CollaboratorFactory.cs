@@ -46,5 +46,14 @@ namespace Domain.Factory
         }
 
 
+        public Collaborator ConvertFromTemp(ICollaboratorTemp collaboratorTemp)
+        {
+            if (collaboratorTemp.UserId == null)
+            {
+                throw new ArgumentException("User does not exist for the provided UserId.");
+            }
+
+            return new Collaborator(collaboratorTemp.UserId.Value, collaboratorTemp.PeriodDateTime);
+        }
     }
 }

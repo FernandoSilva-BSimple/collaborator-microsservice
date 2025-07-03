@@ -1,4 +1,5 @@
 using Domain.Interfaces;
+using Domain.Messages;
 
 namespace Application.IPublishers
 {
@@ -6,5 +7,7 @@ namespace Application.IPublishers
     {
         Task PublishCollaboratorCreatedAsync(ICollaborator collaborator);
         Task PublishCollaboratorUpdatedAsync(ICollaborator collaborator);
+        Task PublishAsync(CreateCollaboratorRequested message);
+        Task PublishAsync(CollaboratorWithoutUserCreatedMessage message);
     }
 }

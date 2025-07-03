@@ -8,11 +8,13 @@ using Domain.Models;
 using Domain.Visitor;
 
 namespace Domain.Factory;
+
 public interface ICollaboratorFactory
 {
     Task<Collaborator> Create(Guid userId, PeriodDateTime periodDateTime);
     Collaborator Create(Guid collabId, Guid userId, PeriodDateTime periodDateTime);
-
     Collaborator Create(ICollaboratorVisitor visitor);
+    Collaborator ConvertFromTemp(ICollaboratorTemp collaboratorTemp);
+
 }
 

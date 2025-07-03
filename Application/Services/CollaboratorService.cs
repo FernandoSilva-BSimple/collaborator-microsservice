@@ -6,6 +6,7 @@ using Application.IPublishers;
 using Application.Interfaces;
 using Application.DTO;
 using Application.DTO.Collaborators;
+using Domain.Messages;
 namespace Application.Services;
 
 public class CollaboratorService : ICollaboratorService
@@ -83,5 +84,23 @@ public class CollaboratorService : ICollaboratorService
         await _publisher.PublishCollaboratorUpdatedAsync(updateCollabDetails);
         var result = new CollabUpdatedDTO(dto.Id, dto.PeriodDateTime);
         return Result<CollabUpdatedDTO>.Success(result);
+    }
+
+    public async Task<Guid> CreateCollaboratorAndUserAsync(CreateCollaboratorAndUserDTO dto)
+    {
+        var correlationId = Guid.NewGuid();
+
+        var message = new CreateCollaboratorRequested(
+            correlationId,
+            dto.Names,
+            dto.Surnames,
+            dto.Email,
+            dto.FinalDate,
+            dto.PeriodDateTime
+        );
+
+        await _publisher.PublishAsync(message);
+
+        return correlationId;
     }
 }

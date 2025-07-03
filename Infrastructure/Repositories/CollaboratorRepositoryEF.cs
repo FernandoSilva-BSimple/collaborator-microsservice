@@ -16,6 +16,7 @@ public class CollaboratorRepositoryEF : GenericRepositoryEF<ICollaborator, Colla
         _mapper = mapper;
     }
 
+
     public async Task<bool> ExistsByUserIdAsync(Guid userId)
     {
         return await _context.Set<CollaboratorDataModel>()
