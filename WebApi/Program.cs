@@ -12,6 +12,7 @@ using Microsoft.EntityFrameworkCore;
 using WebApi.Consumers;
 using WebApi.Publishers;
 using Application.IPublishers;
+using Domain.Messages;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -26,22 +27,26 @@ builder.Services.AddDbContext<AbsanteeContext>(opt =>
 //Services
 builder.Services.AddTransient<ICollaboratorService, CollaboratorService>();
 builder.Services.AddTransient<UserService>();
+builder.Services.AddTransient<ICollaboratorTempService, CollaboratorTempService>();
 
 builder.Services.AddTransient<IMessagePublisher, MassTransitPublisher>();
 
 //Repositories
 builder.Services.AddTransient<IUserRepository, UserRepositoryEF>();
 builder.Services.AddTransient<ICollaboratorRepository, CollaboratorRepositoryEF>();
+builder.Services.AddTransient<ICollaboratorTempRepository, CollaboratorTempRepositoryEF>();
 
 
 //Factories
 builder.Services.AddTransient<ICollaboratorFactory, CollaboratorFactory>();
 builder.Services.AddTransient<IUserFactory, UserFactory>();
+builder.Services.AddTransient<ICollaboratorTempFactory, CollaboratorTempFactory>();
 
 
 //Mappers
 builder.Services.AddTransient<UserDataModelConverter>();
 builder.Services.AddTransient<CollaboratorDataModelConverter>();
+builder.Services.AddTransient<CollaboratorTempDataModelConverter>();
 builder.Services.AddAutoMapper(cfg =>
 {
     //DataModels
@@ -57,6 +62,7 @@ builder.Services.AddMassTransit(x =>
     x.AddConsumer<UserCreatedConsumer>();
     x.AddConsumer<CollaboratorConsumer>();
     x.AddConsumer<CollaboratorUpdatedConsumer>();
+    x.AddConsumer<CreateCollaboratorRequestedConsumer>();
 
     x.UsingRabbitMq((context, cfg) =>
     {
@@ -67,7 +73,7 @@ builder.Services.AddMassTransit(x =>
             e.ConfigureConsumer<CollaboratorConsumer>(context);
             e.ConfigureConsumer<CollaboratorUpdatedConsumer>(context);
             e.ConfigureConsumer<UserCreatedConsumer>(context);
-
+            e.ConfigureConsumer<CreateCollaboratorRequestedConsumer>(context);
         });
     });
 });
@@ -80,12 +86,11 @@ builder.Services.AddSwaggerGen();
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
-if (app.Environment.IsDevelopment())
-{
-    app.MapOpenApi();
-    app.UseSwagger();
-    app.UseSwaggerUI();
-}
+
+app.MapOpenApi();
+app.UseSwagger();
+app.UseSwaggerUI();
+
 
 
 app.UseCors(builder => builder

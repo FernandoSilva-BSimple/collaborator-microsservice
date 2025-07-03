@@ -1,7 +1,8 @@
 using Application.IPublishers;
 using Domain.Interfaces;
-using MassTransit;
 using Domain.Messages;
+using Domain.Models;
+using MassTransit;
 
 namespace WebApi.Publishers
 {
@@ -35,5 +36,16 @@ namespace WebApi.Publishers
 
             await _publishEndpoint.Publish(eventMessage);
         }
+
+        public async Task PublishAsync(CreateCollaboratorRequested message)
+        {
+            await _publishEndpoint.Publish(message);
+        }
+
+        public async Task PublishAsync(CollaboratorWithoutUserCreatedMessage message)
+        {
+            await _publishEndpoint.Publish(message);
+        }
+
     }
 }

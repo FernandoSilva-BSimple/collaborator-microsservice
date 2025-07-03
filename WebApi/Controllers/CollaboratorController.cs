@@ -1,6 +1,8 @@
 using Application.DTO;
 using Application.DTO.Collaborators;
 using Application.Interfaces;
+using Domain.Messages;
+using MassTransit;
 using Microsoft.AspNetCore.Mvc;
 
 namespace WebApi.Controllers;
@@ -35,4 +37,16 @@ public class CollaboratorController : ControllerBase
         if (result == null) return BadRequest("Invalid Arguments");
         return Ok(result);
     }
+
+
+    [HttpPost("with-user")]
+    public async Task<IActionResult> CreateWithUser(
+    [FromBody] CreateCollaboratorAndUserDTO dto,
+    [FromServices] ICollaboratorService collaboratorService)
+    {
+        var correlationId = await collaboratorService.CreateCollaboratorAndUserAsync(dto);
+
+        return Accepted(new { correlationId });
+    }
+
 }
