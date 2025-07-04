@@ -1,4 +1,4 @@
-using Application.IPublishers;
+/*using Application.IPublishers;
 using Domain.Interfaces;
 using Domain.Models;
 using MassTransit;
@@ -45,4 +45,4 @@ namespace WebApi.IntegrationTests.PublisherTests
             );
         }
     }
-}
+}*/

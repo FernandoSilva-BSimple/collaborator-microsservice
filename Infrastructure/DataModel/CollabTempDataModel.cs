@@ -16,12 +16,11 @@ public class CollaboratorTempDataModel : ICollaboratorTempVisitor
     public CollaboratorTempDataModel(ICollaboratorTemp collaboratorTemp)
     {
         Id = collaboratorTemp.Id;
-        PeriodDateTime = (PeriodDateTime)collaboratorTemp.PeriodDateTime;
+        PeriodDateTime = collaboratorTemp.PeriodDateTime;
         Names = collaboratorTemp.Names;
         Surnames = collaboratorTemp.Surnames;
         Email = collaboratorTemp.Email;
         FinalDate = collaboratorTemp.FinalDate;
-        UserId = collaboratorTemp.UserId;
     }
 
     public CollaboratorTempDataModel()

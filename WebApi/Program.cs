@@ -56,12 +56,15 @@ builder.Services.AddAutoMapper(cfg =>
     cfg.CreateMap<Collaborator, CollaboratorDTO>();
 });
 
+
 // MassTransit
 builder.Services.AddMassTransit(x =>
 {
     x.AddConsumer<UserCreatedConsumer>();
     x.AddConsumer<CollaboratorConsumer>();
     x.AddConsumer<CollaboratorUpdatedConsumer>();
+
+    x.AddSagaStateMachine<CollaboratorSaga, CollaboratorSagaState>().InMemoryRepository();
 
     x.UsingRabbitMq((context, cfg) =>
     {
@@ -73,6 +76,11 @@ builder.Services.AddMassTransit(x =>
             e.ConfigureConsumer<CollaboratorUpdatedConsumer>(context);
             e.ConfigureConsumer<UserCreatedConsumer>(context);
         });
+
+        cfg.ReceiveEndpoint("collaborator-saga-queue", e =>
+{
+    e.ConfigureSaga<CollaboratorSagaState>(context);
+});
     });
 });
 
