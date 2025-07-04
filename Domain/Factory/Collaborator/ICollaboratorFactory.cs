@@ -14,7 +14,7 @@ public interface ICollaboratorFactory
     Task<Collaborator> Create(Guid userId, PeriodDateTime periodDateTime);
     Collaborator Create(Guid collabId, Guid userId, PeriodDateTime periodDateTime);
     Collaborator Create(ICollaboratorVisitor visitor);
-    Collaborator ConvertFromTemp(ICollaboratorTemp collaboratorTemp);
+    Collaborator ConvertFromTemp(ICollaboratorTemp collaboratorTemp, Guid userId);
 
 }
 

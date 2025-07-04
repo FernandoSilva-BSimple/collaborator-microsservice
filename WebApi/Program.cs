@@ -62,7 +62,6 @@ builder.Services.AddMassTransit(x =>
     x.AddConsumer<UserCreatedConsumer>();
     x.AddConsumer<CollaboratorConsumer>();
     x.AddConsumer<CollaboratorUpdatedConsumer>();
-    x.AddConsumer<CreateCollaboratorRequestedConsumer>();
 
     x.UsingRabbitMq((context, cfg) =>
     {
@@ -73,7 +72,6 @@ builder.Services.AddMassTransit(x =>
             e.ConfigureConsumer<CollaboratorConsumer>(context);
             e.ConfigureConsumer<CollaboratorUpdatedConsumer>(context);
             e.ConfigureConsumer<UserCreatedConsumer>(context);
-            e.ConfigureConsumer<CreateCollaboratorRequestedConsumer>(context);
         });
     });
 });

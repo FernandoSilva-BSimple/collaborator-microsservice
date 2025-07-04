@@ -5,7 +5,7 @@ namespace Domain.Factory;
 
 public interface ICollaboratorTempFactory
 {
-    CollaboratorTemp Create(Guid id, string names, string surnames, string email, DateTime finalDate, PeriodDateTime periodDateTime);
+    CollaboratorTemp Create(string names, string surnames, string email, DateTime finalDate, PeriodDateTime periodDateTime);
     public CollaboratorTemp Create(ICollaboratorTempVisitor visitor);
 
 }

@@ -86,21 +86,12 @@ public class CollaboratorService : ICollaboratorService
         return Result<CollabUpdatedDTO>.Success(result);
     }
 
-    public async Task<Guid> CreateCollaboratorAndUserAsync(CreateCollaboratorAndUserDTO dto)
+    public async Task<ICollaborator> AddCollaboratorAsync(ICollaborator collaborator)
     {
-        var correlationId = Guid.NewGuid();
+        var collab = await _collaboratorRepository.AddAsync(collaborator);
+        await _collaboratorRepository.SaveChangesAsync();
 
-        var message = new CreateCollaboratorRequested(
-            correlationId,
-            dto.Names,
-            dto.Surnames,
-            dto.Email,
-            dto.FinalDate,
-            dto.PeriodDateTime
-        );
+        return collab;
 
-        await _publisher.PublishAsync(message);
-
-        return correlationId;
     }
 }

@@ -12,6 +12,7 @@ namespace WebApi.Controllers;
 public class CollaboratorController : ControllerBase
 {
     private readonly ICollaboratorService _collabService;
+    private readonly ICollaboratorTempService _collabTempService;
 
     public CollaboratorController(ICollaboratorService collabService)
     {
@@ -41,12 +42,9 @@ public class CollaboratorController : ControllerBase
 
     [HttpPost("with-user")]
     public async Task<IActionResult> CreateWithUser(
-    [FromBody] CreateCollaboratorAndUserDTO dto,
-    [FromServices] ICollaboratorService collaboratorService)
+    [FromBody] CreateCollaboratorAndUserDTO dto)
     {
-        var correlationId = await collaboratorService.CreateCollaboratorAndUserAsync(dto);
-
-        return Accepted(new { correlationId });
+        await _collabTempService.StartSagaAsync(dto);
+        return Accepted();
     }
-
 }

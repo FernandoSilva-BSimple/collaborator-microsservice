@@ -46,14 +46,11 @@ namespace Domain.Factory
         }
 
 
-        public Collaborator ConvertFromTemp(ICollaboratorTemp collaboratorTemp)
+        public Collaborator ConvertFromTemp(ICollaboratorTemp collaboratorTemp, Guid userId)
         {
-            if (collaboratorTemp.UserId == null)
-            {
-                throw new ArgumentException("User does not exist for the provided UserId.");
-            }
+            var periodDateTime = collaboratorTemp.PeriodDateTime;
 
-            return new Collaborator(collaboratorTemp.UserId.Value, collaboratorTemp.PeriodDateTime);
+            return new Collaborator(userId, periodDateTime);
         }
     }
 }

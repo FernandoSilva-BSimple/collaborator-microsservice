@@ -9,10 +9,12 @@ namespace WebApi.Publishers
     public class MassTransitPublisher : IMessagePublisher
     {
         private readonly IPublishEndpoint _publishEndpoint;
+        private readonly ISendEndpointProvider _sendEndpointProvider;
 
-        public MassTransitPublisher(IPublishEndpoint publishEndpoint)
+        public MassTransitPublisher(IPublishEndpoint publishEndpoint, ISendEndpointProvider sendEndpointProvider)
         {
             _publishEndpoint = publishEndpoint;
+            _sendEndpointProvider = sendEndpointProvider;
         }
 
         public async Task PublishCollaboratorCreatedAsync(ICollaborator collaborator)
@@ -37,14 +39,10 @@ namespace WebApi.Publishers
             await _publishEndpoint.Publish(eventMessage);
         }
 
-        public async Task PublishAsync(CreateCollaboratorRequested message)
+        public async Task PublishForCollaboratorSagaAsync(CreateCollaboratorRequested message)
         {
-            await _publishEndpoint.Publish(message);
-        }
-
-        public async Task PublishAsync(CollaboratorWithoutUserCreatedMessage message)
-        {
-            await _publishEndpoint.Publish(message);
+            var endpoint = await _sendEndpointProvider.GetSendEndpoint(new Uri("queue:collaborator-saga-queue"));
+            await endpoint.Send(message);
         }
 
     }

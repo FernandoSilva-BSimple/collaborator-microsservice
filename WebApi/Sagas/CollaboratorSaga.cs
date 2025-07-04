@@ -1,3 +1,4 @@
+using Application.Interfaces;
 using Domain.Factory;
 using Domain.IRepository;
 using Domain.Messages;
@@ -12,46 +13,32 @@ public class CollaboratorSaga : MassTransitStateMachine<CollaboratorSagaState>
     public Event<CreateCollaboratorRequested> CreateCollaboratorRequested { get; private set; } = default!;
     public Event<UserCreatedMessage> UserCreated { get; private set; } = default!;
 
-    private readonly ICollaboratorTempFactory _collaboratorTempFactory;
     private readonly ICollaboratorFactory _collaboratorFactory;
-    private readonly ICollaboratorTempRepository _collaboratorTempRepository;
-    private readonly ICollaboratorRepository _collaboratorRepository;
+    private readonly ICollaboratorTempService _collaboratorTempService;
+    private readonly ICollaboratorService _collaboratorService;
 
     public CollaboratorSaga(
-        ICollaboratorTempFactory collaboratorTempFactory,
         ICollaboratorFactory collaboratorFactory,
-        ICollaboratorTempRepository collaboratorTempRepository,
-        ICollaboratorRepository collaboratorRepository
+        ICollaboratorTempService collaboratorTempService,
+        ICollaboratorService collaboratorService
     )
     {
-        _collaboratorTempFactory = collaboratorTempFactory;
         _collaboratorFactory = collaboratorFactory;
-        _collaboratorTempRepository = collaboratorTempRepository;
-        _collaboratorRepository = collaboratorRepository;
+        _collaboratorTempService = collaboratorTempService;
+        _collaboratorService = collaboratorService;
 
         InstanceState(x => x.CurrentState);
 
-        Event(() => CreateCollaboratorRequested, x => x.CorrelateById(m => m.Message.CorrelationId));
-        Event(() => UserCreated, x => x.CorrelateById(m => m.Message.CorrelationId));
+        Event(() => CreateCollaboratorRequested, x => x.CorrelateBy((saga, context) => saga.Email == context.Message.Email));
+        Event(() => UserCreated, x => x.CorrelateById(context => context.Message.Id));
 
         Initially(
             When(CreateCollaboratorRequested)
                 .ThenAsync(async ctx =>
                 {
-                    var temp = _collaboratorTempFactory.Create(
-                        ctx.Message.CorrelationId,
-                        ctx.Message.Names,
-                        ctx.Message.Surnames,
-                        ctx.Message.Email,
-                        ctx.Message.FinalDate,
-                        ctx.Message.PeriodDateTime
-                    );
-
-                    await _collaboratorTempRepository.AddAsync(temp);
-                    await _collaboratorTempRepository.SaveChangesAsync();
+                    await _collaboratorTempService.CreateCollaboratorTempAsync(ctx.Message);
                 })
-                .Publish(ctx => new CollaboratorWithoutUserCreatedMessage(
-                    ctx.Message.CorrelationId,
+                .Send(ctx => new CollaboratorWithoutUserCreatedMessage(
                     ctx.Message.Names,
                     ctx.Message.Surnames,
                     ctx.Message.Email,
@@ -64,25 +51,16 @@ public class CollaboratorSaga : MassTransitStateMachine<CollaboratorSagaState>
             When(UserCreated)
                 .ThenAsync(async ctx =>
                 {
-                    // Atualiza o CollaboratorTemp com o UserId
-                    var temp = await _collaboratorTempRepository.GetByIdAsync(ctx.Saga.CorrelationId);
-                    if (temp is null)
-                        throw new InvalidOperationException("CollaboratorTemp not found.");
+                    var temp = await _collaboratorTempService.GetByEmailAsync(ctx.Message.Email);
 
-                    temp.UserId = ctx.Message.Id;
-                    await _collaboratorTempRepository.SaveChangesAsync();
+                    if (temp is null) throw new InvalidOperationException("CollaboratorTemp not found.");
 
-                    // Cria o Collaborator real
-                    var collaborator = _collaboratorFactory.ConvertFromTemp(temp);
+                    var collaborator = _collaboratorFactory.ConvertFromTemp(temp, ctx.Message.Id);
 
-                    await _collaboratorRepository.AddAsync(collaborator);
-                    await _collaboratorRepository.SaveChangesAsync();
+                    await _collaboratorService.AddCollaboratorAsync(collaborator);
 
-                    // Elimina o temp
-                    await _collaboratorTempRepository.RemoveAsync(temp);
-                    await _collaboratorTempRepository.SaveChangesAsync();
+                    await _collaboratorTempService.DeleteCollaboratorTempAsync(temp);
 
-                    // Publica evento final
                     await ctx.Publish(new CollaboratorCreatedMessage(
                         collaborator.Id,
                         collaborator.UserId,

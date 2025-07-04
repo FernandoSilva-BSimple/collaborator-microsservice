@@ -1,11 +1,15 @@
 using Application.DTO;
+using Domain.Interfaces;
+using Domain.Messages;
 using Domain.Models;
 
 namespace Application.Interfaces
 {
     public interface ICollaboratorTempService
     {
-        Task CreateCollaboratorTempAndRequestUserAsync(Guid correlationId, CreateCollaboratorAndUserDTO dto);
-
+        Task StartSagaAsync(CreateCollaboratorAndUserDTO dto);
+        Task CreateCollaboratorTempAsync(CreateCollaboratorRequested message);
+        Task<ICollaboratorTemp> GetByEmailAsync(string email);
+        Task DeleteCollaboratorTempAsync(ICollaboratorTemp collaboratorTemp);
     }
 }

@@ -33,6 +33,12 @@ public class CollaboratorTempRepositoryEF : GenericRepositoryEF<ICollaboratorTem
         return domainModel;
     }
 
+    public async Task<ICollaboratorTemp?> GetByEmailAsync(string email)
+    {
+        var dataModel = await _context.Set<CollaboratorTempDataModel>().FirstOrDefaultAsync(c => c.Email == email);
+        if (dataModel == null) return null;
 
-
+        var domainModel = _mapper.Map<CollaboratorTempDataModel, CollaboratorTemp>(dataModel);
+        return domainModel;
+    }
 }

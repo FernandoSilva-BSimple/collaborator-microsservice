@@ -6,4 +6,6 @@ namespace Domain.IRepository;
 
 public interface ICollaboratorTempRepository : IGenericRepositoryEF<ICollaboratorTemp, CollaboratorTemp, ICollaboratorTempVisitor>
 {
+    Task<ICollaboratorTemp?> GetByEmailAsync(string email);
+
 }

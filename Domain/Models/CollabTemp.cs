@@ -10,9 +10,8 @@ public class CollaboratorTemp : ICollaboratorTemp
     public string Email { get; }
     public DateTime FinalDate { get; set; }
     public PeriodDateTime PeriodDateTime { get; private set; }
-    public Guid? UserId { get; set; }
 
-    public CollaboratorTemp(string names, string surnames, string email, DateTime finalDate, PeriodDateTime periodDateTime, Guid? userId)
+    public CollaboratorTemp(string names, string surnames, string email, DateTime finalDate, PeriodDateTime periodDateTime)
     {
         Id = Guid.NewGuid();
         Names = names;
@@ -20,10 +19,9 @@ public class CollaboratorTemp : ICollaboratorTemp
         Email = email;
         FinalDate = finalDate;
         PeriodDateTime = periodDateTime;
-        UserId = userId;
     }
 
-    public CollaboratorTemp(Guid id, string names, string surnames, string email, DateTime finalDate, PeriodDateTime periodDateTime, Guid? userId)
+    public CollaboratorTemp(Guid id, string names, string surnames, string email, DateTime finalDate, PeriodDateTime periodDateTime)
     {
         Id = id;
         Names = names;
@@ -31,7 +29,6 @@ public class CollaboratorTemp : ICollaboratorTemp
         Email = email;
         FinalDate = finalDate;
         PeriodDateTime = periodDateTime;
-        UserId = userId;
     }
 
     public bool ContractContainsDates(PeriodDateTime periodDateTime)
