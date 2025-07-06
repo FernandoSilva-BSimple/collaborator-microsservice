@@ -10,5 +10,4 @@ public interface ICollaboratorTempVisitor
     string Email { get; }
     DateTime FinalDate { get; }
     PeriodDateTime PeriodDateTime { get; }
-    Guid? UserId { get; }
 }

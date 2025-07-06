@@ -3,6 +3,7 @@ using System;
 using Infrastructure;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
@@ -11,9 +12,11 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace Infrastructure.Migrations
 {
     [DbContext(typeof(AbsanteeContext))]
-    partial class AbsanteeContextModelSnapshot : ModelSnapshot
+    [Migration("20250704185801_Refactor")]
+    partial class Refactor
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -21,32 +24,6 @@ namespace Infrastructure.Migrations
                 .HasAnnotation("Relational:MaxIdentifierLength", 63);
 
             NpgsqlModelBuilderExtensions.UseIdentityByDefaultColumns(modelBuilder);
-
-            modelBuilder.Entity("CollaboratorTempDataModel", b =>
-                {
-                    b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("uuid");
-
-                    b.Property<string>("Email")
-                        .IsRequired()
-                        .HasColumnType("text");
-
-                    b.Property<DateTime>("FinalDate")
-                        .HasColumnType("timestamp with time zone");
-
-                    b.Property<string>("Names")
-                        .IsRequired()
-                        .HasColumnType("text");
-
-                    b.Property<string>("Surnames")
-                        .IsRequired()
-                        .HasColumnType("text");
-
-                    b.HasKey("Id");
-
-                    b.ToTable("CollaboratorsTemp");
-                });
 
             modelBuilder.Entity("Infrastructure.DataModel.CollaboratorDataModel", b =>
                 {
@@ -62,6 +39,17 @@ namespace Infrastructure.Migrations
                     b.ToTable("Collaborators");
                 });
 
+            modelBuilder.Entity("Infrastructure.DataModel.CollaboratorTempDataModel", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("CollaboratorsTemp");
+                });
+
             modelBuilder.Entity("Infrastructure.DataModel.UserDataModel", b =>
                 {
                     b.Property<Guid>("Id")
@@ -71,31 +59,6 @@ namespace Infrastructure.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("UserIds");
-                });
-
-            modelBuilder.Entity("CollaboratorTempDataModel", b =>
-                {
-                    b.OwnsOne("Domain.Models.PeriodDateTime", "PeriodDateTime", b1 =>
-                        {
-                            b1.Property<Guid>("CollaboratorTempDataModelId")
-                                .HasColumnType("uuid");
-
-                            b1.Property<DateTime>("_finalDate")
-                                .HasColumnType("timestamp with time zone");
-
-                            b1.Property<DateTime>("_initDate")
-                                .HasColumnType("timestamp with time zone");
-
-                            b1.HasKey("CollaboratorTempDataModelId");
-
-                            b1.ToTable("CollaboratorsTemp");
-
-                            b1.WithOwner()
-                                .HasForeignKey("CollaboratorTempDataModelId");
-                        });
-
-                    b.Navigation("PeriodDateTime")
-                        .IsRequired();
                 });
 
             modelBuilder.Entity("Infrastructure.DataModel.CollaboratorDataModel", b =>
@@ -117,6 +80,31 @@ namespace Infrastructure.Migrations
 
                             b1.WithOwner()
                                 .HasForeignKey("CollaboratorDataModelId");
+                        });
+
+                    b.Navigation("PeriodDateTime")
+                        .IsRequired();
+                });
+
+            modelBuilder.Entity("Infrastructure.DataModel.CollaboratorTempDataModel", b =>
+                {
+                    b.OwnsOne("Domain.Models.PeriodDateTime", "PeriodDateTime", b1 =>
+                        {
+                            b1.Property<Guid>("CollaboratorTempDataModelId")
+                                .HasColumnType("uuid");
+
+                            b1.Property<DateTime>("_finalDate")
+                                .HasColumnType("timestamp with time zone");
+
+                            b1.Property<DateTime>("_initDate")
+                                .HasColumnType("timestamp with time zone");
+
+                            b1.HasKey("CollaboratorTempDataModelId");
+
+                            b1.ToTable("CollaboratorsTemp");
+
+                            b1.WithOwner()
+                                .HasForeignKey("CollaboratorTempDataModelId");
                         });
 
                     b.Navigation("PeriodDateTime")

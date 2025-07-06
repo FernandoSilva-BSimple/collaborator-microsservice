@@ -42,9 +42,10 @@ namespace Application.Services
             return await _repository.GetByEmailAsync(email) ?? throw new InvalidOperationException("Collaborator not found");
         }
 
-        public async Task DeleteCollaboratorTempAsync(ICollaboratorTemp collaboratorTemp)
+        public async Task DeleteCollaboratorTempAsync(Guid id)
         {
-            await _repository.RemoveAsync(collaboratorTemp);
+            var existing = await _repository.GetByIdAsync(id) ?? throw new InvalidOperationException("Collaborator not found");
+            await _repository.RemoveAsync(existing);
             await _repository.SaveChangesAsync();
         }
     }

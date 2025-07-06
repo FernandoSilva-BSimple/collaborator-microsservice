@@ -10,6 +10,6 @@ namespace Application.Interfaces
         Task StartSagaAsync(CreateCollaboratorAndUserDTO dto);
         Task CreateCollaboratorTempAsync(CreateCollaboratorRequested message);
         Task<ICollaboratorTemp> GetByEmailAsync(string email);
-        Task DeleteCollaboratorTempAsync(ICollaboratorTemp collaboratorTemp);
+        Task DeleteCollaboratorTempAsync(Guid id);
     }
 }

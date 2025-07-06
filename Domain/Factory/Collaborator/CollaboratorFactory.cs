@@ -48,7 +48,8 @@ namespace Domain.Factory
 
         public Collaborator ConvertFromTemp(ICollaboratorTemp collaboratorTemp, Guid userId)
         {
-            var periodDateTime = collaboratorTemp.PeriodDateTime;
+            var originalPeriod = collaboratorTemp.PeriodDateTime;
+            var periodDateTime = new PeriodDateTime(originalPeriod._initDate, originalPeriod._finalDate);
 
             return new Collaborator(userId, periodDateTime);
         }

@@ -35,10 +35,21 @@ public class CollaboratorTempRepositoryEF : GenericRepositoryEF<ICollaboratorTem
 
     public async Task<ICollaboratorTemp?> GetByEmailAsync(string email)
     {
-        var dataModel = await _context.Set<CollaboratorTempDataModel>().FirstOrDefaultAsync(c => c.Email == email);
+        var dataModel = await _context.Set<CollaboratorTempDataModel>().AsNoTracking().FirstOrDefaultAsync(c => c.Email == email);
         if (dataModel == null) return null;
 
         var domainModel = _mapper.Map<CollaboratorTempDataModel, CollaboratorTemp>(dataModel);
         return domainModel;
+    }
+
+    public override async Task RemoveAsync(ICollaboratorTemp entity)
+    {
+        var temp = await _context.Set<CollaboratorTempDataModel>().FirstOrDefaultAsync(t => t.Id == entity.Id);
+
+        if (temp != null)
+        {
+            _context.Remove(temp);
+            await _context.SaveChangesAsync();
+        }
     }
 }

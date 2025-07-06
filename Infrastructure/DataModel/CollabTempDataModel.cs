@@ -1,17 +1,16 @@
 using Domain.Interfaces;
 using Domain.Models;
 using Domain.Visitor;
-namespace Infrastructure.DataModel;
 
 public class CollaboratorTempDataModel : ICollaboratorTempVisitor
 {
     public Guid Id { get; set; }
     public PeriodDateTime PeriodDateTime { get; set; }
-    public string Names { get; }
-    public string Surnames { get; }
-    public string Email { get; }
-    public DateTime FinalDate { get; }
-    public Guid? UserId { get; }
+
+    public string Names { get; private set; } = default!;
+    public string Surnames { get; private set; } = default!;
+    public string Email { get; private set; } = default!;
+    public DateTime FinalDate { get; private set; }
 
     public CollaboratorTempDataModel(ICollaboratorTemp collaboratorTemp)
     {
@@ -23,7 +22,5 @@ public class CollaboratorTempDataModel : ICollaboratorTempVisitor
         FinalDate = collaboratorTemp.FinalDate;
     }
 
-    public CollaboratorTempDataModel()
-    {
-    }
+    public CollaboratorTempDataModel() { }
 }

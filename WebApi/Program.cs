@@ -38,9 +38,9 @@ builder.Services.AddTransient<ICollaboratorTempRepository, CollaboratorTempRepos
 
 
 //Factories
-builder.Services.AddTransient<ICollaboratorFactory, CollaboratorFactory>();
-builder.Services.AddTransient<IUserFactory, UserFactory>();
-builder.Services.AddTransient<ICollaboratorTempFactory, CollaboratorTempFactory>();
+builder.Services.AddScoped<ICollaboratorFactory, CollaboratorFactory>();
+builder.Services.AddScoped<IUserFactory, UserFactory>();
+builder.Services.AddScoped<ICollaboratorTempFactory, CollaboratorTempFactory>();
 
 
 //Mappers
@@ -64,23 +64,29 @@ builder.Services.AddMassTransit(x =>
     x.AddConsumer<CollaboratorConsumer>();
     x.AddConsumer<CollaboratorUpdatedConsumer>();
 
-    x.AddSagaStateMachine<CollaboratorSaga, CollaboratorSagaState>().InMemoryRepository();
+    x.AddSagaStateMachine<CollaboratorSaga, CollaboratorSagaState>()
+        .InMemoryRepository();
 
-    x.UsingRabbitMq((context, cfg) =>
+    x.UsingRabbitMq((ctx, cfg) =>
     {
-        cfg.Host("rabbitmq://localhost");
-        var instance = InstanceInfo.InstanceId;
-        cfg.ReceiveEndpoint($"collaborators-cmd-{instance}", e =>
+        cfg.Host("localhost", "/", h =>
         {
-            e.ConfigureConsumer<CollaboratorConsumer>(context);
-            e.ConfigureConsumer<CollaboratorUpdatedConsumer>(context);
-            e.ConfigureConsumer<UserCreatedConsumer>(context);
+            h.Username("guest");
+            h.Password("guest");
+        });
+
+        cfg.ReceiveEndpoint("collaborators-cmd", e =>
+        {
+            e.ConfigureConsumer<CollaboratorConsumer>(ctx);
+            e.ConfigureConsumer<CollaboratorUpdatedConsumer>(ctx);
+            e.ConfigureConsumer<UserCreatedConsumer>(ctx);
         });
 
         cfg.ReceiveEndpoint("collaborator-saga-queue", e =>
-{
-    e.ConfigureSaga<CollaboratorSagaState>(context);
-});
+        {
+            e.ConfigureSaga<CollaboratorSagaState>(ctx);
+
+        });
     });
 });
 

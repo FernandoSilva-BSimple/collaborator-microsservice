@@ -14,9 +14,10 @@ public class CollaboratorController : ControllerBase
     private readonly ICollaboratorService _collabService;
     private readonly ICollaboratorTempService _collabTempService;
 
-    public CollaboratorController(ICollaboratorService collabService)
+    public CollaboratorController(ICollaboratorService collabService, ICollaboratorTempService collabTempService)
     {
         _collabService = collabService;
+        _collabTempService = collabTempService;
     }
 
     [HttpPost]

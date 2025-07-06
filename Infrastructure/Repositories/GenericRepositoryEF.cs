@@ -72,7 +72,7 @@ namespace Infrastructure.Repositories
             _context.Set<TDataModel>().Remove(dataModel);
         }
 
-        public async Task RemoveAsync(TInterface entity)
+        public virtual async Task RemoveAsync(TInterface entity)
         {
             var dataModel = _mapper.Map<TDomain, TDataModel>((TDomain)entity);
             _context.Set<TDataModel>().Remove(dataModel);

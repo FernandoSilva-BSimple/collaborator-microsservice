@@ -3,7 +3,10 @@ using Domain.Factory;
 using Domain.IRepository;
 using Domain.Messages;
 using Domain.Models;
+using Infrastructure;
 using MassTransit;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.DependencyInjection;
 
 public class CollaboratorSaga : MassTransitStateMachine<CollaboratorSagaState>
 {
@@ -13,37 +16,42 @@ public class CollaboratorSaga : MassTransitStateMachine<CollaboratorSagaState>
     public Event<CreateCollaboratorRequested> CreateCollaboratorRequested { get; private set; } = default!;
     public Event<UserCreatedMessage> UserCreated { get; private set; } = default!;
 
-    private readonly ICollaboratorFactory _collaboratorFactory;
-    private readonly ICollaboratorTempService _collaboratorTempService;
-    private readonly ICollaboratorService _collaboratorService;
-
-    public CollaboratorSaga(
-        ICollaboratorFactory collaboratorFactory,
-        ICollaboratorTempService collaboratorTempService,
-        ICollaboratorService collaboratorService
-    )
+    public CollaboratorSaga()
     {
-        _collaboratorFactory = collaboratorFactory;
-        _collaboratorTempService = collaboratorTempService;
-        _collaboratorService = collaboratorService;
-
         InstanceState(x => x.CurrentState);
 
-        Event(() => CreateCollaboratorRequested, x => x.CorrelateBy((saga, context) => saga.Email == context.Message.Email));
-        Event(() => UserCreated, x => x.CorrelateById(context => context.Message.Id));
-
+        Event(() => CreateCollaboratorRequested, x =>
+        {
+            x.CorrelateBy((saga, context) => saga.Email == context.Message.Email);
+            x.SelectId(context => NewId.NextGuid());
+        });
+        Event(() => UserCreated, x =>
+        {
+            x.CorrelateBy((saga, context) => saga.Email == context.Message.Email);
+        });
         Initially(
             When(CreateCollaboratorRequested)
                 .ThenAsync(async ctx =>
                 {
-                    await _collaboratorTempService.CreateCollaboratorTempAsync(ctx.Message);
+
+                    Console.WriteLine("CreateCollaboratorRequested was CALLED");
+
+                    var provider = ctx.GetPayload<IServiceProvider>();
+                    using var scope = provider.CreateScope();
+
+                    var collaboratorTempService = scope.ServiceProvider.GetRequiredService<ICollaboratorTempService>();
+
+                    await collaboratorTempService.CreateCollaboratorTempAsync(ctx.Message);
+                }).Then(ctx =>
+                {
+                    ctx.Saga.Email = ctx.Message.Email;
                 })
-                .Send(ctx => new CollaboratorWithoutUserCreatedMessage(
-                    ctx.Message.Names,
-                    ctx.Message.Surnames,
-                    ctx.Message.Email,
-                    ctx.Message.FinalDate
-                ))
+                .Send(new Uri("queue:users-cmd"), ctx => new CollaboratorWithoutUserCreatedMessage(
+    ctx.Message.Names,
+    ctx.Message.Surnames,
+    ctx.Message.Email,
+    ctx.Message.FinalDate
+))
                 .TransitionTo(WaitingForUserCreation)
         );
 
@@ -51,15 +59,24 @@ public class CollaboratorSaga : MassTransitStateMachine<CollaboratorSagaState>
             When(UserCreated)
                 .ThenAsync(async ctx =>
                 {
-                    var temp = await _collaboratorTempService.GetByEmailAsync(ctx.Message.Email);
 
-                    if (temp is null) throw new InvalidOperationException("CollaboratorTemp not found.");
+                    Console.WriteLine("UserCreaTED INSIDE SAGA was CALLED");
 
-                    var collaborator = _collaboratorFactory.ConvertFromTemp(temp, ctx.Message.Id);
+                    var provider = ctx.GetPayload<IServiceProvider>();
+                    using var scope = provider.CreateScope();
 
-                    await _collaboratorService.AddCollaboratorAsync(collaborator);
+                    var collaboratorTempService = scope.ServiceProvider.GetRequiredService<ICollaboratorTempService>();
+                    var collaboratorFactory = scope.ServiceProvider.GetRequiredService<ICollaboratorFactory>();
+                    var collaboratorService = scope.ServiceProvider.GetRequiredService<ICollaboratorService>();
 
-                    await _collaboratorTempService.DeleteCollaboratorTempAsync(temp);
+                    var temp = await collaboratorTempService.GetByEmailAsync(ctx.Message.Email);
+                    if (temp is null)
+                        throw new InvalidOperationException("CollaboratorTemp not found.");
+
+                    var collaborator = collaboratorFactory.ConvertFromTemp(temp, ctx.Message.Id);
+
+                    await collaboratorService.AddCollaboratorAsync(collaborator);
+                    await collaboratorTempService.DeleteCollaboratorTempAsync(temp.Id);
 
                     await ctx.Publish(new CollaboratorCreatedMessage(
                         collaborator.Id,
