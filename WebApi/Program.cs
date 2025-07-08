@@ -63,7 +63,7 @@ var instanceId = InstanceInfo.InstanceId;
 builder.Services.AddMassTransit(x =>
 {
     x.AddConsumer<UserCreatedConsumer>();
-    x.AddConsumer<CollaboratorConsumer>();
+    x.AddConsumer<CollaboratorCreatedConsumer>();
     x.AddConsumer<CollaboratorUpdatedConsumer>();
 
     x.AddSagaStateMachine<CollaboratorSaga, CollaboratorSagaState>()
@@ -77,12 +77,15 @@ builder.Services.AddMassTransit(x =>
             h.Password("guest");
         });
 
-        // fila de comandos normais
         cfg.ReceiveEndpoint($"collaborators-cmd-{instanceId}", e =>
         {
-            e.ConfigureConsumer<CollaboratorConsumer>(ctx);
+            e.ConfigureConsumer<CollaboratorCreatedConsumer>(ctx);
             e.ConfigureConsumer<CollaboratorUpdatedConsumer>(ctx);
             e.ConfigureConsumer<UserCreatedConsumer>(ctx);
+        });
+
+        cfg.ReceiveEndpoint($"collaborators-saga-{instanceId}", e =>
+        {
             e.StateMachineSaga<CollaboratorSagaState>(ctx);
         });
     });

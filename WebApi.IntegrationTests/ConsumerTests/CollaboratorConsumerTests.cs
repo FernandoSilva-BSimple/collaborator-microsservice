@@ -16,7 +16,7 @@ namespace WebApi.IntegrationTests.ConsumerTests
         {
             // arrange
             var serviceDouble = new Mock<ICollaboratorService>();
-            var consumer = new CollaboratorConsumer(serviceDouble.Object);
+            var consumer = new CollaboratorCreatedConsumer(serviceDouble.Object);
 
             var message = new CollaboratorCreatedMessage(Guid.NewGuid(), Guid.NewGuid(), new PeriodDateTime(DateTime.Now, DateTime.Now.AddYears(1)));
 

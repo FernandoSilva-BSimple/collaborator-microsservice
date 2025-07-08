@@ -7,6 +7,6 @@ namespace Application.IPublishers
     {
         Task PublishCollaboratorCreatedAsync(ICollaborator collaborator);
         Task PublishCollaboratorUpdatedAsync(ICollaborator collaborator);
-        Task PublishForCollaboratorSagaAsync(CreateCollaboratorRequested message);
+        Task SendCreateCollaboratorSagaCommandAsync(CreateRequestedCollaboratorCommand message);
     }
 }

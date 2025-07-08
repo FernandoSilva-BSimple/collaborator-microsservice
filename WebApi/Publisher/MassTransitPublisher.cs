@@ -39,11 +39,10 @@ namespace WebApi.Publishers
             await _publishEndpoint.Publish(eventMessage);
         }
 
-        public async Task PublishForCollaboratorSagaAsync(CreateCollaboratorRequested message)
+        public async Task SendCreateCollaboratorSagaCommandAsync(CreateRequestedCollaboratorCommand message)
         {
-            var endpoint = await _sendEndpointProvider.GetSendEndpoint(new Uri($"queue:collaborators-cmd-{InstanceInfo.InstanceId}"));
+            var endpoint = await _sendEndpointProvider.GetSendEndpoint(new Uri($"queue:collaborators-saga-{InstanceInfo.InstanceId}"));
             await endpoint.Send(message);
         }
-
     }
 }

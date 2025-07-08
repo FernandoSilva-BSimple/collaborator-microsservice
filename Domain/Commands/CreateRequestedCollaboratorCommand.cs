@@ -4,7 +4,7 @@ using Domain.Models;
 namespace Domain.Messages
 {
 
-    public record CreateCollaboratorRequested(
+    public record CreateRequestedCollaboratorCommand(
         string Names,
         string Surnames,
         string Email,

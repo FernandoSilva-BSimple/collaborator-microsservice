@@ -14,8 +14,8 @@ public class CollaboratorSaga : MassTransitStateMachine<CollaboratorSagaState>
     public State WaitingForUserCreation { get; private set; }
     public State Completed { get; private set; }
 
-    public Event<CreateCollaboratorRequested> CreateCollaboratorRequested { get; private set; } = default!;
-    public Event<UserCreatedSagaMessage> UserSagaCreated { get; private set; } = default!;
+    public Event<CreateRequestedCollaboratorCommand> CreateCollaboratorRequested { get; private set; } = default!;
+    public Event<UserCreatedMessage> UserCreated { get; private set; } = default!;
 
     public CollaboratorSaga()
     {
@@ -26,7 +26,7 @@ public class CollaboratorSaga : MassTransitStateMachine<CollaboratorSagaState>
             x.CorrelateBy((saga, context) => saga.Email == context.Message.Email);
             x.SelectId(context => NewId.NextGuid());
         });
-        Event(() => UserSagaCreated, x =>
+        Event(() => UserCreated, x =>
         {
             x.CorrelateBy((saga, context) => saga.Email == context.Message.Email);
         });
@@ -58,7 +58,7 @@ public class CollaboratorSaga : MassTransitStateMachine<CollaboratorSagaState>
         );
 
         During(WaitingForUserCreation,
-            When(UserSagaCreated)
+            When(UserCreated)
                 .ThenAsync(async ctx =>
                 {
 

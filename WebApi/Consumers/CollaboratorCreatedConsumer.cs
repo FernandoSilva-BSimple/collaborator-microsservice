@@ -4,11 +4,11 @@ using Domain.Messages;
 
 namespace WebApi.Consumers
 {
-    public class CollaboratorConsumer : IConsumer<CollaboratorCreatedMessage>
+    public class CollaboratorCreatedConsumer : IConsumer<CollaboratorCreatedMessage>
     {
         private readonly ICollaboratorService _collabService;
 
-        public CollaboratorConsumer(ICollaboratorService collabService)
+        public CollaboratorCreatedConsumer(ICollaboratorService collabService)
         {
             _collabService = collabService;
         }

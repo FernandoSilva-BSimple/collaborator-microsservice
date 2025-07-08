@@ -8,7 +8,7 @@ namespace Application.Interfaces
     public interface ICollaboratorTempService
     {
         Task StartSagaAsync(CreateCollaboratorAndUserDTO dto);
-        Task CreateCollaboratorTempAsync(CreateCollaboratorRequested message);
+        Task CreateCollaboratorTempAsync(CreateRequestedCollaboratorCommand message);
         Task<ICollaboratorTemp> GetByEmailAsync(string email);
         Task DeleteCollaboratorTempAsync(Guid id);
     }

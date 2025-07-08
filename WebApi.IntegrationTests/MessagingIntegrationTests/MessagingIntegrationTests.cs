@@ -50,7 +50,7 @@ namespace WebApi.IntegrationTests.MessagingIntegrationTests
                 .AddMassTransitTestHarness(cfg =>
                 {
                     // Registar o consumidor que queremos testar
-                    cfg.AddConsumer<CollaboratorConsumer>();
+                    cfg.AddConsumer<CollaboratorCreatedConsumer>();
                 })
                 .BuildServiceProvider(true);
 
@@ -74,7 +74,7 @@ namespace WebApi.IntegrationTests.MessagingIntegrationTests
                 // Assert
 
                 // Verificar se o NOSSO consumidor específico consumiu a mensagem
-                Assert.True(await harness.GetConsumerHarness<CollaboratorConsumer>().Consumed.Any<CollaboratorCreatedMessage>());
+                Assert.True(await harness.GetConsumerHarness<CollaboratorCreatedConsumer>().Consumed.Any<CollaboratorCreatedMessage>());
 
                 // Verificar se o consumidor realmente fez o seu trabalho, chamando o método correto no serviço
                 collabServiceDouble.Verify(

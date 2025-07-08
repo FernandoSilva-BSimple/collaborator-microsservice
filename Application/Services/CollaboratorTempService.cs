@@ -24,7 +24,7 @@ namespace Application.Services
             _publisher = publisher;
         }
 
-        public async Task CreateCollaboratorTempAsync(CreateCollaboratorRequested message)
+        public async Task CreateCollaboratorTempAsync(CreateRequestedCollaboratorCommand message)
         {
             var collaboratorTemp = _factory.Create(message.Names, message.Surnames, message.Email, message.FinalDate, message.PeriodDateTime);
             await _repository.AddAsync(collaboratorTemp);
@@ -33,8 +33,8 @@ namespace Application.Services
 
         public async Task StartSagaAsync(CreateCollaboratorAndUserDTO dto)
         {
-            CreateCollaboratorRequested message = new(dto.Names, dto.Surnames, dto.Email, dto.FinalDate, dto.PeriodDateTime);
-            await _publisher.PublishForCollaboratorSagaAsync(message);
+            CreateRequestedCollaboratorCommand message = new(dto.Names, dto.Surnames, dto.Email, dto.FinalDate, dto.PeriodDateTime);
+            await _publisher.SendCreateCollaboratorSagaCommandAsync(message);
         }
 
         public async Task<ICollaboratorTemp> GetByEmailAsync(string email)
