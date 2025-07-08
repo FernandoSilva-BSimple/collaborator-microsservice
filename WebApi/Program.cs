@@ -84,7 +84,7 @@ builder.Services.AddMassTransit(x =>
             e.ConfigureConsumer<UserCreatedConsumer>(ctx);
         });
 
-        cfg.ReceiveEndpoint($"collaborators-saga-{instanceId}", e =>
+        cfg.ReceiveEndpoint($"collaborators-saga", e =>
         {
             e.StateMachineSaga<CollaboratorSagaState>(ctx);
         });
