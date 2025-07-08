@@ -58,6 +58,8 @@ builder.Services.AddAutoMapper(cfg =>
 
 
 // MassTransit
+var instanceId = InstanceInfo.InstanceId;
+
 builder.Services.AddMassTransit(x =>
 {
     x.AddConsumer<UserCreatedConsumer>();
@@ -75,17 +77,13 @@ builder.Services.AddMassTransit(x =>
             h.Password("guest");
         });
 
-        cfg.ReceiveEndpoint("collaborators-cmd", e =>
+        // fila de comandos normais
+        cfg.ReceiveEndpoint($"collaborators-cmd-{instanceId}", e =>
         {
             e.ConfigureConsumer<CollaboratorConsumer>(ctx);
             e.ConfigureConsumer<CollaboratorUpdatedConsumer>(ctx);
             e.ConfigureConsumer<UserCreatedConsumer>(ctx);
-        });
-
-        cfg.ReceiveEndpoint("collaborator-saga-queue", e =>
-        {
-            e.ConfigureSaga<CollaboratorSagaState>(ctx);
-
+            e.StateMachineSaga<CollaboratorSagaState>(ctx);
         });
     });
 });

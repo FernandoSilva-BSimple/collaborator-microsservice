@@ -1,4 +1,5 @@
 using Application.Interfaces;
+using Domain.Commands;
 using Domain.Factory;
 using Domain.IRepository;
 using Domain.Messages;
@@ -14,7 +15,7 @@ public class CollaboratorSaga : MassTransitStateMachine<CollaboratorSagaState>
     public State Completed { get; private set; }
 
     public Event<CreateCollaboratorRequested> CreateCollaboratorRequested { get; private set; } = default!;
-    public Event<UserCreatedMessage> UserCreated { get; private set; } = default!;
+    public Event<UserCreatedSagaMessage> UserSagaCreated { get; private set; } = default!;
 
     public CollaboratorSaga()
     {
@@ -25,7 +26,7 @@ public class CollaboratorSaga : MassTransitStateMachine<CollaboratorSagaState>
             x.CorrelateBy((saga, context) => saga.Email == context.Message.Email);
             x.SelectId(context => NewId.NextGuid());
         });
-        Event(() => UserCreated, x =>
+        Event(() => UserSagaCreated, x =>
         {
             x.CorrelateBy((saga, context) => saga.Email == context.Message.Email);
         });
@@ -46,17 +47,18 @@ public class CollaboratorSaga : MassTransitStateMachine<CollaboratorSagaState>
                 {
                     ctx.Saga.Email = ctx.Message.Email;
                 })
-                .Send(new Uri("queue:users-cmd"), ctx => new CollaboratorWithoutUserCreatedMessage(
-    ctx.Message.Names,
-    ctx.Message.Surnames,
-    ctx.Message.Email,
-    ctx.Message.FinalDate
-))
+                .Send(new Uri("queue:users-cmd-saga"), ctx => new CreateUserFromCollaboratorCommand(
+                    InstanceInfo.InstanceId,
+                    ctx.Message.Names,
+                    ctx.Message.Surnames,
+                    ctx.Message.Email,
+                    ctx.Message.FinalDate
+                ))
                 .TransitionTo(WaitingForUserCreation)
         );
 
         During(WaitingForUserCreation,
-            When(UserCreated)
+            When(UserSagaCreated)
                 .ThenAsync(async ctx =>
                 {
 

@@ -41,7 +41,7 @@ namespace WebApi.Publishers
 
         public async Task PublishForCollaboratorSagaAsync(CreateCollaboratorRequested message)
         {
-            var endpoint = await _sendEndpointProvider.GetSendEndpoint(new Uri("queue:collaborator-saga-queue"));
+            var endpoint = await _sendEndpointProvider.GetSendEndpoint(new Uri($"queue:collaborators-cmd-{InstanceInfo.InstanceId}"));
             await endpoint.Send(message);
         }
 
