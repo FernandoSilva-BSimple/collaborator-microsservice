@@ -1,4 +1,4 @@
-/*using Application.IPublishers;
+using Application.IPublishers;
 using Domain.Interfaces;
 using Domain.Models;
 using MassTransit;
@@ -9,15 +9,16 @@ using Xunit;
 
 namespace WebApi.IntegrationTests.PublisherTests
 {
-    public class PublishCollaboratorTests
+    public class PublishCollaboratorUpdatedTests
     {
         [Fact]
-        public async Task PublishCollaboratorCreatedAsync_ShouldPublishEventWithCorrectData()
+        public async Task PublishCollaboratorUpdatedAsync_ShouldPublishEventWithCorrectData()
         {
             // Arrange 
             var publishEndpointDouble = new Mock<IPublishEndpoint>();
+            var sendEndpointDouble = new Mock<ISendEndpointProvider>();
 
-            var publisher = new MassTransitPublisher(publishEndpointDouble.Object);
+            var publisher = new MassTransitPublisher(publishEndpointDouble.Object, sendEndpointDouble.Object);
 
             var collaboratorDouble = new Mock<ICollaborator>();
             var collaboratorId = Guid.NewGuid();
@@ -29,12 +30,12 @@ namespace WebApi.IntegrationTests.PublisherTests
             collaboratorDouble.Setup(c => c.PeriodDateTime).Returns(period);
 
             // Act 
-            await publisher.PublishCollaboratorCreatedAsync(collaboratorDouble.Object);
+            await publisher.PublishCollaboratorUpdatedAsync(collaboratorDouble.Object);
 
             // Assert
             publishEndpointDouble.Verify(
                 p => p.Publish(
-                    It.Is<CollaboratorCreatedMessage>(e =>
+                    It.Is<CollaboratorUpdatedMessage>(e =>
                         e.Id == collaboratorId &&
                         e.UserId == userId &&
                         e.PeriodDateTime == period
@@ -45,4 +46,4 @@ namespace WebApi.IntegrationTests.PublisherTests
             );
         }
     }
-}*/
+}
