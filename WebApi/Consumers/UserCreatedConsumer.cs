@@ -1,14 +1,15 @@
 using MassTransit;
 using Application.Services;
 using Domain.Messages;
+using Application.Interfaces;
 
 namespace WebApi.Consumers
 {
     public class UserCreatedConsumer : IConsumer<UserCreatedMessage>
     {
-        private readonly UserService _userService;
+        private readonly IUserService _userService;
 
-        public UserCreatedConsumer(UserService userService)
+        public UserCreatedConsumer(IUserService userService)
         {
             _userService = userService;
         }
